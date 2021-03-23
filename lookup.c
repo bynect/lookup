@@ -27,7 +27,7 @@ lookup_key_init(lookup_key_t *key, uint8_t *raw, size_t len)
 Lookup table helper functions
 */
 static lookup_entry_t *
-lookup_table_find(lookup_entry_t *entries, uint32_t size, const lookup_key_t *key)
+lookup_table_entry(lookup_entry_t *entries, uint32_t size, const lookup_key_t *key)
 {
     lookup_entry_t *removed = NULL;
 
@@ -68,7 +68,7 @@ lookup_table_grow(lookup_table_t *table, uint32_t size)
         if (entry->key == NULL)
             continue;
 
-        lookup_entry_t *dest = lookup_table_find(
+        lookup_entry_t *dest = lookup_table_entry(
             entries, size, entry->key
         );
 
@@ -103,7 +103,7 @@ lookup_table_free(lookup_table_t *table)
 }
 
 bool
-lookup_table_set(lookup_table_t *table, lookup_key_t *key, intptr_t ptr)
+lookup_table_insert(lookup_table_t *table, lookup_key_t *key, intptr_t ptr)
 {
     if (table->count + 1 > table->size * table->load)
     {
@@ -111,7 +111,7 @@ lookup_table_set(lookup_table_t *table, lookup_key_t *key, intptr_t ptr)
         lookup_table_grow(table, new_size);
     }
 
-    lookup_entry_t *entry = lookup_table_find(
+    lookup_entry_t *entry = lookup_table_entry(
         table->entries, table->size, key
     );
 
@@ -125,12 +125,12 @@ lookup_table_set(lookup_table_t *table, lookup_key_t *key, intptr_t ptr)
 }
 
 bool
-lookup_table_get(lookup_table_t *table, const lookup_key_t *key, intptr_t *ptr)
+lookup_table_find(lookup_table_t *table, const lookup_key_t *key, intptr_t *ptr)
 {
     if (table->count == 0)
         return false;
 
-    lookup_entry_t *entry = lookup_table_find(
+    lookup_entry_t *entry = lookup_table_entry(
         table->entries, table->size, key
     );
 
@@ -147,7 +147,7 @@ lookup_table_remove(lookup_table_t *table, const lookup_key_t *key)
     if (table->count == 0)
         return false;
 
-    lookup_entry_t *entry = lookup_table_find(
+    lookup_entry_t *entry = lookup_table_entry(
         table->entries, table->size, key
     );
 
@@ -166,6 +166,6 @@ lookup_table_merge(lookup_table_t *dest, const lookup_table_t *src)
     {
         lookup_entry_t *entry = src->entries + i;
         if (entry->key != NULL)
-            lookup_table_set(dest, entry->key, entry->ptr);
+            lookup_table_insert(dest, entry->key, entry->ptr);
     }
 }

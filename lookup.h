@@ -45,20 +45,47 @@ typedef struct
     lookup_entry_t *entries;
 } lookup_table_t;
 
-#define DEFAULT_LOAD 0.75
-#define DEFAULT_GROW 1.5
-#define lookup_table_default(table) lookup_table_init(table, DEFAULT_LOAD, DEFAULT_GROW)
-
 void lookup_table_init(lookup_table_t *table, float load, float grow);
 
 void lookup_table_free(lookup_table_t *table);
 
-bool lookup_table_set(lookup_table_t *table, lookup_key_t *key, intptr_t ptr);
+bool lookup_table_insert(lookup_table_t *table, lookup_key_t *key, intptr_t ptr);
 
-bool lookup_table_get(lookup_table_t *table, const lookup_key_t *key, intptr_t *ptr);
+bool lookup_table_find(lookup_table_t *table, const lookup_key_t *key, intptr_t *ptr);
 
 bool lookup_table_remove(lookup_table_t *table, const lookup_key_t *key);
 
 void lookup_table_merge(lookup_table_t *dest, const lookup_table_t *src);
+
+/*
+Convenience helpers
+*/
+#define DEFAULT_LOAD 0.75
+#define DEFAULT_GROW 1.5
+#define lookup_table_default(table) lookup_table_init(table, DEFAULT_LOAD, DEFAULT_GROW)
+
+static inline bool
+lookup_table_insert_raw(lookup_table_t *table, uint8_t *raw, size_t len, intptr_t ptr)
+{
+    lookup_key_t key;
+    lookup_key_init(&key, raw, len);
+    return lookup_table_insert(table, &key, ptr);
+}
+
+static inline bool
+lookup_table_find_raw(lookup_table_t *table, uint8_t *raw, size_t len, intptr_t *ptr)
+{
+    lookup_key_t key;
+    lookup_key_init(&key, raw, len);
+    return lookup_table_find(table, &key, ptr);
+}
+
+static inline bool
+lookup_table_remove_raw(lookup_table_t *table, uint8_t *raw, size_t len)
+{
+    lookup_key_t key;
+    lookup_key_init(&key, raw, len);
+    return lookup_table_remove(table, &key);
+}
 
 #endif /* LOOKUP_H_ */
