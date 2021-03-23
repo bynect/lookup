@@ -10,6 +10,10 @@ lookup_key_init(lookup_key_t *key, uint8_t *raw, size_t len)
     key->raw = raw;
     key->len = len;
 
+    /*
+    FNV1a hash algorithm
+    */
+
     key->hash = 2166136261u;
 
     for (size_t i = 0; i < len; ++i)
