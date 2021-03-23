@@ -41,11 +41,13 @@ Lookup table declarations
 typedef struct
 {
     uint32_t size, count;
-    float load, grow;
     lookup_entry_t *entries;
 } lookup_table_t;
 
-void lookup_table_init(lookup_table_t *table, float load, float grow);
+#define LOOKUP_LOAD 0.75
+#define LOOKUP_GROW 2
+
+void lookup_table_init(lookup_table_t *table);
 
 void lookup_table_free(lookup_table_t *table);
 
@@ -60,10 +62,6 @@ void lookup_table_merge(lookup_table_t *dest, const lookup_table_t *src);
 /*
 Convenience helpers
 */
-#define DEFAULT_LOAD 0.75
-#define DEFAULT_GROW 1.5
-#define lookup_table_default(table) lookup_table_init(table, DEFAULT_LOAD, DEFAULT_GROW)
-
 static inline bool
 lookup_table_insert_raw(lookup_table_t *table, uint8_t *raw, size_t len, intptr_t ptr)
 {

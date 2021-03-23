@@ -31,7 +31,7 @@ lookup_table_entry(lookup_entry_t *entries, uint32_t size, const lookup_key_t *k
 {
     lookup_entry_t *removed = NULL;
 
-    for (uint32_t i = key->hash % size; ; i = (i + 1) % size)
+    for (uint32_t i = key->hash & (size - 1); ; i = (i + 1) & (size - 1))
     {
         lookup_entry_t *entry = entries + i;
 
@@ -86,12 +86,10 @@ lookup_table_grow(lookup_table_t *table, uint32_t size)
 Lookup table definitions
 */
 void
-lookup_table_init(lookup_table_t *table, float load, float grow)
+lookup_table_init(lookup_table_t *table)
 {
     table->size = 0;
     table->count = 0;
-    table->load = load;
-    table->grow = grow;
     table->entries = NULL;
 }
 
@@ -99,15 +97,15 @@ void
 lookup_table_free(lookup_table_t *table)
 {
     free(table->entries);
-    lookup_table_init(table, table->load, table->grow);
+    lookup_table_init(table);
 }
 
 bool
 lookup_table_insert(lookup_table_t *table, lookup_key_t *key, intptr_t ptr)
 {
-    if (table->count + 1 > table->size * table->load)
+    if (table->count + 1 > table->size * LOOKUP_LOAD)
     {
-        uint32_t new_size = table->size == 0 ? 8 : table->size * table->grow;
+        uint32_t new_size = table->size == 0 ? 8 : table->size * LOOKUP_GROW;
         lookup_table_grow(table, new_size);
     }
 
